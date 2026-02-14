@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>🌸 yêu em 🌸</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+canvas{
+  max-width: 95vw;
+  height: auto;
+}
+body{
+  background:linear-gradient(135deg,#ffb6c1,#ffc0cb);
+  text-align:center;
+  font-family:"Comic Sans MS",cursive;
+  color:white;
+}
+canvas{
+  display:none;
+  margin:20px auto;
+  background:#ffe4ec;
+  border:6px solid #ff69b4;
+  border-radius:16px;
+}
+#login{margin-top:80px;}
+#hud{display:none;margin:10px;font-size:18px;}
+#message{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#fff0f5;
+  color:#d63384;
+  padding:10px 20px;
+  border-radius:12px;
+  display:none;
+  box-shadow:0 0 10px pink;
+}
+#letter{
+  display:none;
+  background:#fff0f5;
+  color:#d63384;
+  padding:25px;
+  width:60%;
+  margin:40px auto;
+  border-radius:15px;
+}
+.popup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+.popup-box{
+  background:#fff0f5;
+  color:#d63384;
+  padding:25px;
+  border-radius:16px;
+  width:320px;
+  text-align:center;
+}
+.popup button{
+  margin-top:10px;
+  background:#ff69b4;
+  color:white;
+  border:none;
+  padding:8px 15px;
+  border-radius:10px;
+}
+.color-inputs{
+  display:flex;
+  justify-content:space-around;
+  margin:15px 0;
+}
+.color{
+  width:45px;height:45px;border-radius:8px;cursor:pointer;
+  border:2px solid #999;
+}
+.white{background:white;}
+.pink{background:pink;}
+.moss{background:#556b2f;}
+.orange{background:orange;}
+#dialogueBox{
+  display:none;
+  position:fixed;
+  bottom:40px;
+  left:50%;
+  transform:translateX(-50%);
+  width:60%;
+  background:#fff0f5;
+  color:#d63384;
+  padding:20px;
+  border-radius:18px;
+  box-shadow:0 0 15px hotpink;
+  font-size:18px;
+  text-align:left;
+}
+#dialogueHint{
+  font-size:14px;
+  opacity:0.6;
+  margin-top:8px;
+  text-align:right;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="login">
+  <h1>🌸 NHẬP MẬT KHẨU ĐỂ VÀO GAME NHÉ 🌸</h1>
+  <input id="pass" maxlength="4"
+    class="form-control w-25 mx-auto text-center">
+  <button class="btn btn-light mt-3" onclick="checkPass()">Bắt đầu</button>
+  <p id="error"></p>
+</div>
+
+<div id="welcomePopup" class="popup">
+  <div class="popup-box">
+    <h3>🌸 Chào mừng người đẹp đã đến với mê cung của tớ 🌸</h3>
+    <p>Hướng dẫn: sử dụng các phím mũi tên để di chuyển nhé 💖</p>
+    <button onclick="startGame()">Bắt đầu chơi</button>
+  </div>
+</div>
+<div id="dialogueBox">
+  <div id="dialogueText"></div>
+  <div id="dialogueHint">Nhấn SPACE để tiếp tục</div>
+</div>
+
+
+<div id="hud">🔑 Đã nhặt chìa khóa</div>
+<div id="message"></div>
+<canvas id="game">
+  <div id="controls" style="display:none; margin-top:10px;">
+  <button onclick="move(0,-1)">⬆️</button>
+  <button onclick="move(-1,0)">⬅️</button>
+  <button onclick="move(0,1)">⬇️</button>
+  <button onclick="move(1,0)">➡️</button>
+</div>
+</canvas>
+
+<div id="letter">
+  <h3>💌 Kho báu</h3>
+  <p>
+    Bạn đã vượt qua mê cung 🌸<br>
+    Giải cứu chuột 🐭<br>
+    Và tìm được kho báu 💖
+  </p>
+</div>
+
+<script>
+  let isDialogueActive=false;
+let dialogueLines=[];
+let currentLine=0;
+let typingInterval=null;
+
+const dialogueBox=document.getElementById("dialogueBox");
+const dialogueText=document.getElementById("dialogueText");
+
+function startDialogue(lines){
+  isDialogueActive=true;
+  dialogueLines=lines;
+  currentLine=0;
+  dialogueBox.style.display="block";
+  typeLine(dialogueLines[currentLine]);
+}
+
+function typeLine(text){
+  dialogueText.innerHTML="";
+  let i=0;
+  clearInterval(typingInterval);
+  typingInterval=setInterval(()=>{
+    dialogueText.innerHTML+=text[i];
+    i++;
+    if(i>=text.length){
+      clearInterval(typingInterval);
+      typingInterval=null;
+    }
+  },25);
+}
+
+function nextDialogue(){
+  if(typingInterval){
+    clearInterval(typingInterval);
+    dialogueText.innerHTML=dialogueLines[currentLine];
+    typingInterval=null;
+    return;
+  }
+
+  currentLine++;
+  if(currentLine>=dialogueLines.length){
+    isDialogueActive=false;
+    dialogueBox.style.display="none";
+  }else{
+    typeLine(dialogueLines[currentLine]);
+  }
+}
+
+/* ===== CẤU HÌNH ===== */
+const PASSWORD="1234";
+const tileSize=48;
+const playerScale=1.25;
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+/* ===== LOAD ẢNH ===== */
+const img={};
+["player","key","cage","mouse","chest","enemy"].forEach(n=>{
+  img[n]=new Image();
+  img[n].src=`images/${n}.png`;
+});
+img.gateLocked=new Image();
+img.gateLocked.src="images/gate_locked.png";
+img.gateOpen=new Image();
+img.gateOpen.src="images/gate_open.png";
+
+/* ===== VẼ AN TOÀN ===== */
+function drawSafe(image,x,y,color){
+  if(image.complete && image.naturalWidth>0)
+    ctx.drawImage(image,x,y,tileSize,tileSize);
+  else{
+    ctx.fillStyle=color;
+    ctx.fillRect(x+6,y+6,tileSize-12,tileSize-12);
+  }
+}
+
+/* ===== MAP ===== */
+const level1=[
+"111111111111111",
+"100000000000001",
+"101111011111101",
+"10100001000K101",
+"101011110111101",
+"100010000010001",
+"111010111010111",
+"100010001010001",
+"101110101011101",
+"101000101000001",
+"101011101111101",
+"1000000010000G1",
+"101111101011101",
+"100000000000001",
+"111111111111111"
+];
+
+const level2=[
+"111111111111111",
+"1G0000000000001",
+"101111111011101",
+"100000001000001",
+"111011101110111",
+"100010001000001",
+"101110111011101",
+"100000100000001",
+"101110111111101",
+"100010000000001",
+"101011111110101",
+"1110000000100G1",
+"1C1111111011101",
+"100000000000001",
+"111111111111111"
+];
+const level4=[
+"111111111111111",
+"1G00000000000E1",
+"101111111111101",
+"100000000000001",
+"101111011111101",
+"100000000000001",
+"101111000000001",
+"100000000000001",
+"101111011111101",
+"100000000000001",
+"111111111110001",
+"1000000000000G1",
+"111111111111111"
+];
+
+const level3=[
+"111111111111111",
+"1G0000000000001",
+"101111111111101",
+"100000000000001",
+"100001111110001",
+"100001000010001",
+"1000010T0010001",
+"100000000000001",
+"101111111111101",
+"100000000000001",
+"111111111111111"
+];
+
+function getMap(){
+  if(level===1) return level1;
+  if(level===2) return level2;
+  if(level===4) return level4;
+  return level3;
+}
+
+
+/* ===== TRẠNG THÁI ===== */
+let level=1;
+let hasKey=false;
+let mouseFreed=false;
+let gateUnlocked=false;
+let chestOpened=false;
+
+let player={x:1,y:1};
+let mouse={x:0,y:0};
+let enemy=null;
+let enemyDir=1;
+
+/* ===== HELPER ===== */
+function isBackGate(x){
+  return x < 3;
+}
+
+/* ===== MESSAGE ===== */
+function showMessage(t){
+  const m=document.getElementById("message");
+  m.innerText=t;
+  m.style.display="block";
+  setTimeout(()=>m.style.display="none",2000);
+}
+
+/* ===== INIT ===== */
+function initLevel(){
+  const map=getMap();
+
+  if(level===2){
+    gateUnlocked=false;
+    mouseFreed=false;
+    for(let y=0;y<map.length;y++)
+      for(let x=0;x<map[y].length;x++)
+        if(map[y][x]==="C") mouse={x,y};
+  }
+
+  if(level===3){
+    chestOpened=false;
+  }
+  if(level===1){
+  startDialogue([
+    "Mình đang ở đâu thế này...",
+    "Phải tìm chìa khóa để thoát khỏi mê cung."
+  ]);
+}
+
+if(level===2){
+  startDialogue([
+    "Có một chú chuột bị nhốt ở đây.",
+    "Có lẽ nó sẽ giúp mình mở cổng."
+  ]);
+}
+
+if(level===3){
+  startDialogue([
+    "Đây là căn phòng cuối cùng...",
+    "Chiếc rương kia trông rất khả nghi."
+  ]);
+}
+if(level===4){
+  const map=getMap();
+  enemy=null;
+
+  for(let y=0;y<map.length;y++){
+    for(let x=0;x<map[y].length;x++){
+      if(map[y][x]==="E"){
+        enemy={x,y};
+      }
+    }
+  }
+
+  startDialogue([
+    "Không khí ở đây thật lạ...",
+    "Có thứ gì đó đang di chuyển."
+  ]);
+}
+
+}
+/* ===== CANVAS ===== */
+function resizeCanvas(){
+  const m=getMap();
+  canvas.width=m[0].length*tileSize;
+  canvas.height=m.length*tileSize;
+}
+
+/* ===== VẼ ===== */
+function drawWall(px,py){
+  // nền gạch
+  ctx.fillStyle="#ff69b4";
+  ctx.fillRect(px,py,tileSize,tileSize);
+
+  // viền nổi
+  ctx.strokeStyle="#ff1493";
+  ctx.lineWidth=3;
+  ctx.strokeRect(px+1,py+1,tileSize-2,tileSize-2);
+
+  // họa tiết caro nhẹ
+  ctx.fillStyle="rgba(255,255,255,0.15)";
+  for(let i=0;i<tileSize;i+=8){
+    for(let j=0;j<tileSize;j+=8){
+      if((i+j)%16===0)
+        ctx.fillRect(px+i,py+j,4,4);
+    }
+  }
+
+  // bóng đổ góc
+  ctx.fillStyle="rgba(0,0,0,0.12)";
+  ctx.fillRect(px,py,tileSize,6);      // trên
+  ctx.fillRect(px,py,6,tileSize);      // trái
+}
+
+function draw(){
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const map=getMap();
+
+  for(let y=0;y<map.length;y++){
+    for(let x=0;x<map[y].length;x++){
+      const t=map[y][x];
+      const px=x*tileSize, py=y*tileSize;
+
+      if(t==="1"){
+        drawWall(px,py);  
+      }
+      if(t==="K"&&!hasKey) drawSafe(img.key,px,py,"gold");
+      if(t==="C"&&level===2&&!mouseFreed) drawSafe(img.cage,px,py,"gray");
+
+      if(t==="G"){
+        if(level===2 && !gateUnlocked && !isBackGate(x))
+          drawSafe(img.gateLocked,px,py,"darkred");
+        else
+          drawSafe(img.gateOpen,px,py,"green");
+      }
+
+      if(t==="T"&&!chestOpened)
+        drawSafe(img.chest,px,py,"brown");
+    }
+  }
+
+  if(level===2 && mouseFreed)
+    drawSafe(img.mouse,mouse.x*tileSize,mouse.y*tileSize,"white");
+  if(level===4 && enemy){
+  drawSafe(img.enemy,enemy.x*tileSize,enemy.y*tileSize,"purple");
+}
+  const size = tileSize * playerScale;
+const offset = (size - tileSize) / 2;
+
+if(img.player.complete && img.player.naturalWidth>0){
+  ctx.drawImage(
+    img.player,
+    player.x*tileSize - offset,
+    player.y*tileSize - offset,
+    size,
+    size
+  );
+}else{
+  ctx.fillStyle="hotpink";
+  ctx.fillRect(
+    player.x*tileSize - offset,
+    player.y*tileSize - offset,
+    size,
+    size
+  );
+}
+
+  requestAnimationFrame(draw);
+}
+/* ===== DI CHUYỂN ===== */
+function move(dx,dy){
+  if(isDialogueActive) return;
+  const map=getMap();
+  const nx=player.x+dx, ny=player.y+dy;
+  if(!map[ny]||map[ny][nx]==="1") return;
+
+  const t=map[ny][nx];
+
+  if(t==="G" && level===2 && !gateUnlocked && !isBackGate(nx)){
+    showMessage("Có vẻ như cổng của mê cung này đã bị khóa, biết đâu chú chuột bên trong có thể giúp được gì đó!");
+    return;
+  }
+
+  player={x:nx,y:ny};
+
+  if(t==="K"){
+    hasKey=true;
+    hud.style.display="block";
+  }
+
+  if(t==="C"&&level===2&&hasKey&&!mouseFreed){
+    mouseFreed=true;
+    moveMouseToGate();
+  }
+
+  if(t==="G"){
+    if(level===1){
+      level=2; resetLevel(); return;
+    }
+
+    if(level===2){
+  if(isBackGate(nx)){
+    level=1; resetLevel(); return;
+  }
+  level=4; resetLevel(); return;
+}
+
+if(level===4){
+  level=3; resetLevel(); return;
+}
+
+  }
+
+  if(t==="T"&&level===3&&!chestOpened){
+    chestOpened=true;
+    canvas.style.display="none";
+    letter.style.display="block";
+  }
+}
+
+/* ===== CHUỘT ===== */
+function moveMouseToGate(){
+  const map=getMap();
+  const timer=setInterval(()=>{
+    for(let y=0;y<map.length;y++){
+      for(let x=0;x<map[y].length;x++){
+        if(map[y][x]==="G" && !isBackGate(x)){
+          if(mouse.x<x) mouse.x++;
+          else if(mouse.x>x) mouse.x--;
+          else if(mouse.y<y) mouse.y++;
+          else if(mouse.y>y) mouse.y--;
+          else{
+            gateUnlocked=true;
+            mouse.x--;
+            clearInterval(timer);
+          }
+          return;
+        }
+      }
+    }
+  },120);
+}
+function updateEnemy(){
+  if(level!==4 || !enemy) return;
+
+  const map=getMap();
+
+  let dx = 0;
+  let dy = 0;
+
+  if(player.x > enemy.x) dx = 1;
+  else if(player.x < enemy.x) dx = -1;
+
+  if(player.y > enemy.y) dy = 1;
+  else if(player.y < enemy.y) dy = -1;
+
+  // Ưu tiên đi ngang trước
+  if(dx !== 0 && map[enemy.y][enemy.x+dx] !== "1"){
+    enemy.x += dx;
+  }
+  else if(dy !== 0 && map[enemy.y+dy][enemy.x] !== "1"){
+    enemy.y += dy;
+  }
+
+  // Nếu chạm player
+  if(enemy.x===player.x && enemy.y===player.y){
+    showMessage("Bạn đã bị bắt!");
+    resetLevel();
+  }
+}
+
+
+setInterval(updateEnemy,200);
+
+/* ===== RESET ===== */
+function resetLevel(){
+  player={x:1,y:1};
+  resizeCanvas();
+  initLevel();
+}
+
+/* ===== START ===== */
+function checkPass(){
+  if(pass.value===PASSWORD){
+    login.style.display="none";
+    document.getElementById("welcomePopup").style.display="flex";
+  }else error.innerText="Sai mật mã";
+}
+
+function startGame(){
+  document.getElementById("controls").style.display="block";
+  document.getElementById("welcomePopup").style.display="none";
+  canvas.style.display="block";
+  resizeCanvas();
+  initLevel();
+  draw();
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space" && isDialogueActive){
+  nextDialogue();
+  return;
+}
+  if(e.key==="ArrowUp") move(0,-1);
+  if(e.key==="ArrowDown") move(0,1);
+  if(e.key==="ArrowLeft") move(-1,0);
+  if(e.key==="ArrowRight") move(1,0);
+});
+</script>
+</body>
+</html>
