@@ -5,10 +5,6 @@
 <title>🌸 yêu em 🌸</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-canvas{
-  max-width: 95vw;
-  height: auto;
-}
 body{
   background:linear-gradient(135deg,#ffb6c1,#ffc0cb);
   text-align:center;
@@ -105,6 +101,57 @@ canvas{
   text-align:right;
 }
 
+.drop{
+  width:70px;
+  height:70px;
+  border:3px solid hotpink;
+  display:inline-block;
+  margin:10px;
+}
+#chestPopup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:3000;
+  justify-content:center;
+  align-items:center;
+}
+
+#chestPopup .popup-box{
+  width:420px;
+}
+
+#dropZones{
+  display:flex;
+  justify-content:center;
+  margin:15px 0;
+}
+  /* ===== INVENTORY TRONG POPUP ===== */
+#inventoryPopup{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  min-height:70px;
+  margin-bottom:15px;
+}
+
+#inventoryPopup img{
+  width:55px;
+  height:55px;
+  object-fit:contain;
+  cursor:grab;
+  transition:0.2s;
+}
+
+#inventoryPopup img:hover{
+  transform:scale(1.1);
+}
+#inventory{
+  display:none !important;
+}
 </style>
 </head>
 
@@ -133,22 +180,34 @@ canvas{
 
 <div id="hud">🔑 Đã nhặt chìa khóa</div>
 <div id="message"></div>
-<canvas id="game">
-  <div id="controls" style="display:none; margin-top:10px;">
-  <button onclick="move(0,-1)">⬆️</button>
-  <button onclick="move(-1,0)">⬅️</button>
-  <button onclick="move(0,1)">⬇️</button>
-  <button onclick="move(1,0)">➡️</button>
-</div>
-</canvas>
+<canvas id="game"></canvas>
+<div id="chestPopup" class="popup">
+  <div class="popup-box">
 
+    <h3>Đặt 4 viên đá đúng vị trí</h3>
+
+    <div id="inventoryPopup"></div>
+
+    <div id="dropZones">
+      <div class="drop" data-slot="0"></div>
+      <div class="drop" data-slot="1"></div>
+      <div class="drop" data-slot="2"></div>
+      <div class="drop" data-slot="3"></div>
+    </div>
+
+    <button onclick="resetPuzzle()">Reset</button>
+    <button onclick="closeChest()">Thoát</button>
+
+  </div>
+</div>
 <div id="letter">
-  <h3>💌 Kho báu</h3>
+  <h3>🌷Congrturation</h3>
   <p>
-    Bạn đã vượt qua mê cung 🌸<br>
-    Giải cứu chuột 🐭<br>
-    Và tìm được kho báu 💖
+    Chúc mừng em bé của anh đã vượt qua được trò chơi mê cung mini này aaaaaa. Mong rằng trò chơi đã mang lại cho em bé chút ít niềm vui nhỏ ạ. Dù là trò chơi này vẫn còn đơn giản lắm lun, còn chắp vá lung tung nữa chứ. hì hì. Nhưng mò anh chỉ muốn nói rằng anh yêu em bé nhiều lắm luôn đó . Còn về kho báu hả, chẳng biết nữa, nhưng mò với anh thì em bé đã là kho báu tuyệt vời nhất rùi á 💖💖💖
   </p>
+  <a href="next.html">
+  <button class="nextBtn">Mở món quà tiếp theo 🎁</button>
+</a>
 </div>
 
 <script>
@@ -200,15 +259,15 @@ function nextDialogue(){
 }
 
 /* ===== CẤU HÌNH ===== */
-const PASSWORD="1234";
-const tileSize=48;
-const playerScale=1.25;
+const PASSWORD="1805";
+const tileSize=42;
+const playerScale=1.5;
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
 /* ===== LOAD ẢNH ===== */
 const img={};
-["player","key","cage","mouse","chest","enemy"].forEach(n=>{
+["player","key","cage","mouse","chest","enemy","stone_orange","stone_pink","stone_white","stone_moss"].forEach(n=>{
   img[n]=new Image();
   img[n].src=`images/${n}.png`;
 });
@@ -236,7 +295,7 @@ const level1=[
 "101011110111101",
 "100010000010001",
 "111010111010111",
-"100010001010001",
+"1000100010100O1",
 "101110101011101",
 "101000101000001",
 "101011101111101",
@@ -245,10 +304,9 @@ const level1=[
 "100000000000001",
 "111111111111111"
 ];
-
 const level2=[
 "111111111111111",
-"1G0000000000001",
+"1G00000000001P1",
 "101111111011101",
 "100000001000001",
 "111011101110111",
@@ -275,6 +333,21 @@ const level4=[
 "101111011111101",
 "100000000000001",
 "111111111110001",
+"1W00000000000G1",
+"111111111111111"
+];
+const level5=[
+"111111111111111",
+"1G0000000M 00001",
+"101111111111101",
+"100000000000001",
+"101111011111101",
+"100001000000001",
+"101101011111101",
+"100101000000001",
+"101101011111101",
+"100001000000001",
+"101111011111101",
 "1000000000000G1",
 "111111111111111"
 ];
@@ -297,9 +370,9 @@ function getMap(){
   if(level===1) return level1;
   if(level===2) return level2;
   if(level===4) return level4;
+  if(level===5) return level5;
   return level3;
 }
-
 
 /* ===== TRẠNG THÁI ===== */
 let level=1;
@@ -307,11 +380,17 @@ let hasKey=false;
 let mouseFreed=false;
 let gateUnlocked=false;
 let chestOpened=false;
+let isChestOpen=false;
+let traps=[];
+let trapInterval=null;
+let trapActive=true;
 
 let player={x:1,y:1};
 let mouse={x:0,y:0};
 let enemy=null;
 let enemyDir=1;
+let stones=[];
+
 
 /* ===== HELPER ===== */
 function isBackGate(x){
@@ -378,6 +457,17 @@ if(level===4){
     "Có thứ gì đó đang di chuyển."
   ]);
 }
+if(level===5){
+
+  generateTraps(12);
+  startTrapTimer();
+
+  startDialogue([
+    "Sàn nhà đang rung lên...",
+    "Những chiếc bẫy này có vẻ hoạt động theo chu kỳ!"
+  ]);
+}
+
 
 }
 /* ===== CANVAS ===== */
@@ -435,6 +525,17 @@ function draw(){
         else
           drawSafe(img.gateOpen,px,py,"green");
       }
+      if(t==="O" && !stones.includes("orange"))
+        drawSafe(img.stone_orange,px,py,"orange");
+
+      if(t==="P" && !stones.includes("pink"))
+        drawSafe(img.stone_pink,px,py,"pink");
+
+      if(t==="W" && !stones.includes("white"))
+        drawSafe(img.stone_white,px,py,"white");
+
+      if(t==="M" && !stones.includes("moss"))
+        drawSafe(img.stone_moss,px,py,"green");
 
       if(t==="T"&&!chestOpened)
         drawSafe(img.chest,px,py,"brown");
@@ -446,8 +547,55 @@ function draw(){
   if(level===4 && enemy){
   drawSafe(img.enemy,enemy.x*tileSize,enemy.y*tileSize,"purple");
 }
+if(level===5){
+  traps.forEach(t=>{
+
+    const px=t.x*tileSize;
+    const py=t.y*tileSize;
+
+    if(trapActive){
+
+      ctx.shadowColor="red";
+      ctx.shadowBlur=15;
+
+      ctx.fillStyle="#8b0000";
+      ctx.beginPath();
+      ctx.arc(
+        px+tileSize/2,
+        py+tileSize/2,
+        tileSize/3,
+        0,
+        Math.PI*2
+      );
+      ctx.fill();
+
+      ctx.shadowBlur=0;
+    }
+    else{
+      ctx.fillStyle="rgba(139,0,0,0.25)";
+      ctx.beginPath();
+      ctx.arc(
+        px+tileSize/2,
+        py+tileSize/2,
+        tileSize/3,
+        0,
+        Math.PI*2
+      );
+      ctx.fill();
+    }
+
+  });
+}
   const size = tileSize * playerScale;
 const offset = (size - tileSize) / 2;
+if(level===5){
+  traps.forEach(t=>{
+    if(t.active){
+      ctx.fillStyle="black";
+      ctx.fillRect(t.x*tileSize+12,t.y*tileSize+12,24,24);
+    }
+  });
+}
 
 if(img.player.complete && img.player.naturalWidth>0){
   ctx.drawImage(
@@ -475,6 +623,14 @@ function move(dx,dy){
   const map=getMap();
   const nx=player.x+dx, ny=player.y+dy;
   if(!map[ny]||map[ny][nx]==="1") return;
+  // Kiểm tra trap TRƯỚC khi di chuyển
+if(level===5 && trapActive){
+  if(traps.some(t=>t.x===nx && t.y===ny)){
+    showMessage("Bạn bước trúng bẫy đang kích hoạt!");
+    resetLevel();
+    return;
+  }
+}
 
   const t=map[ny][nx];
 
@@ -484,6 +640,10 @@ function move(dx,dy){
   }
 
   player={x:nx,y:ny};
+  if(t==="O"){ stones.push("orange"); updateInventory(); }
+if(t==="P"){ stones.push("pink"); updateInventory(); }
+if(t==="W"){ stones.push("white"); updateInventory(); }
+if(t==="M"){ stones.push("moss"); updateInventory(); }
 
   if(t==="K"){
     hasKey=true;
@@ -496,49 +656,140 @@ function move(dx,dy){
   }
 
   if(t==="G"){
-    if(level===1){
-      level=2; resetLevel(); return;
+
+  // LEVEL 1
+  if(level===1){
+    level=2;
+    resetLevel();
+    return;
+  }
+
+  // LEVEL 2
+  if(level===2){
+    if(isBackGate(nx)){
+      level=1;
+    }else{
+      level=4;
     }
-
-    if(level===2){
-  if(isBackGate(nx)){
-    level=1; resetLevel(); return;
+    resetLevel();
+    return;
   }
-  level=4; resetLevel(); return;
-}
 
+  // LEVEL 4
 if(level===4){
-  level=3; resetLevel(); return;
+  if(isBackGate(nx)){
+    level=2;   // quay về màn chuột
+  }else{
+    level=5;   // đi tiếp màn bẫy
+  }
+  resetLevel();
+  return;
 }
 
+
+  // LEVEL 5
+  if(level===5){
+    if(isBackGate(nx)){
+      level=4;   // quay về 4
+    }else{
+      level=3;   // đi tới màn cuối
+    }
+    resetLevel();
+    return;
   }
 
+  // LEVEL 3 (màn cuối)
+  if(level===3){
+    if(isBackGate(nx)){
+      level=5;   // cho phép quay lại
+      resetLevel();
+    }
+    return;
+  }
+}
   if(t==="T"&&level===3&&!chestOpened){
-    chestOpened=true;
-    canvas.style.display="none";
-    letter.style.display="block";
-  }
+  document.getElementById("chestPopup").style.display="flex";
 }
-
+}
+function closeChest(){
+  document.getElementById("chestPopup").style.display="none";
+}
 /* ===== CHUỘT ===== */
-function moveMouseToGate(){
+function isWalkable(x,y){
   const map=getMap();
-  const timer=setInterval(()=>{
-    for(let y=0;y<map.length;y++){
-      for(let x=0;x<map[y].length;x++){
-        if(map[y][x]==="G" && !isBackGate(x)){
-          if(mouse.x<x) mouse.x++;
-          else if(mouse.x>x) mouse.x--;
-          else if(mouse.y<y) mouse.y++;
-          else if(mouse.y>y) mouse.y--;
-          else{
-            gateUnlocked=true;
-            mouse.x--;
-            clearInterval(timer);
-          }
-          return;
-        }
+  if(!map[y]) return false;
+  if(!map[y][x]) return false;
+  return map[y][x] !== "1";
+}
+function moveMouseToGate(){
+
+  const map=getMap();
+
+  let gateX, gateY;
+
+  for(let y=0;y<map.length;y++){
+    for(let x=0;x<map[y].length;x++){
+      if(map[y][x]==="G" && !isBackGate(x)){
+        gateX=x;
+        gateY=y;
       }
+    }
+  }
+
+  // ===== BFS =====
+  const queue=[];
+  const visited={};
+  const parent={};
+
+  queue.push(mouse);
+  visited[mouse.x+","+mouse.y]=true;
+
+  const dirs=[
+    {x:1,y:0},
+    {x:-1,y:0},
+    {x:0,y:1},
+    {x:0,y:-1}
+  ];
+
+  while(queue.length>0){
+    const cur=queue.shift();
+
+    if(cur.x===gateX && cur.y===gateY) break;
+
+    for(let d of dirs){
+      const nx=cur.x+d.x;
+      const ny=cur.y+d.y;
+      const key=nx+","+ny;
+
+      if(isWalkable(nx,ny) && !visited[key]){
+        visited[key]=true;
+        parent[key]=cur;
+        queue.push({x:nx,y:ny});
+      }
+    }
+  }
+
+  // dựng lại đường đi
+  let path=[];
+  let cur={x:gateX,y:gateY};
+
+  while(cur){
+    path.push(cur);
+    cur=parent[cur.x+","+cur.y];
+  }
+
+  path.reverse();
+
+  let step=0;
+
+  const timer=setInterval(()=>{
+    if(step<path.length){
+      mouse.x=path[step].x;
+      mouse.y=path[step].y;
+      step++;
+    }else{
+      gateUnlocked=true;
+      clearInterval(timer);
     }
   },120);
 }
@@ -573,12 +824,63 @@ function updateEnemy(){
 
 
 setInterval(updateEnemy,200);
+function updateInventory(){
+  const inv=document.getElementById("inventoryPopup");
+  inv.innerHTML="";
+  stones.forEach(s=>{
+    const el=document.createElement("img");
+    el.src=`images/stone_${s}.png`;
+    el.draggable=true;
+    el.dataset.stone=s;
+    el.ondragstart=dragStone;
+    inv.appendChild(el);
+  });
+}
+
+function dragStone(e){
+  e.dataTransfer.setData("stone",e.target.dataset.stone);
+}
 
 /* ===== RESET ===== */
 function resetLevel(){
   player={x:1,y:1};
+
+  if(trapInterval){
+    clearInterval(trapInterval);
+    trapInterval=null;
+  }
+
   resizeCanvas();
   initLevel();
+}
+
+function generateTraps(count){
+  const map=getMap();
+  traps=[];
+
+  while(traps.length<count){
+    const x=Math.floor(Math.random()*map[0].length);
+    const y=Math.floor(Math.random()*map.length);
+
+    if(
+  map[y][x]!=="1" &&
+  map[y][x]!=="G" &&
+  !(x===1 && y===1)   // tránh spawn đè player
+){
+      if(!traps.some(t=>t.x===x && t.y===y)){
+        traps.push({x,y});
+      }
+    }
+  }
+}
+function startTrapTimer(){
+  trapActive=true;
+
+  if(trapInterval) clearInterval(trapInterval);
+
+  trapInterval=setInterval(()=>{
+    trapActive=!trapActive;
+  },1500);
 }
 
 /* ===== START ===== */
@@ -590,12 +892,76 @@ function checkPass(){
 }
 
 function startGame(){
-  document.getElementById("controls").style.display="block";
   document.getElementById("welcomePopup").style.display="none";
   canvas.style.display="block";
   resizeCanvas();
   initLevel();
   draw();
+}
+document.addEventListener("DOMContentLoaded",()=>{
+
+  document.querySelectorAll("#chestPopup .drop").forEach(d=>{
+
+    d.ondragover=e=>e.preventDefault();
+
+    d.ondrop=e=>{
+      e.preventDefault();
+
+      const stone=e.dataTransfer.getData("stone");
+
+      if(!stone) return;
+
+      // nếu ô đã có đá thì không cho đặt
+      if(d.dataset.value) return;
+
+      d.innerHTML=`<img src="images/stone_${stone}.png" width="50">`;
+      d.dataset.value=stone;
+
+      // xóa khỏi inventory
+      stones=stones.filter(s=>s!==stone);
+      updateInventory();
+
+      checkPuzzle();
+    };
+
+    // click để lấy lại đá
+    d.onclick=()=>{
+      if(!d.dataset.value) return;
+
+      stones.push(d.dataset.value);
+      updateInventory();
+
+      d.innerHTML="";
+      delete d.dataset.value;
+    };
+
+  });
+
+});
+function resetPuzzle(){
+  document.querySelectorAll("#chestPopup .drop").forEach(d=>{
+    if(d.dataset.value){
+      stones.push(d.dataset.value);
+      delete d.dataset.value;
+      d.innerHTML="";
+    }
+  });
+  updateInventory();
+}
+function checkPuzzle(){
+
+  const correct=["white","pink","moss","orange"];
+  const current=[...document.querySelectorAll("#chestPopup .drop")]
+                .map(d=>d.dataset.value);
+
+  if(current.length===4 &&
+     current.join()===correct.join()){
+
+    chestOpened=true;
+    document.getElementById("chestPopup").style.display="none";
+    canvas.style.display="none";
+    letter.style.display="block";
+  }
 }
 
 document.addEventListener("keydown",e=>{

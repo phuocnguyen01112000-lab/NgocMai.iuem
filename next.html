@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Foru</title>
+
+<style>
+    /* nút quay lại sau easter egg */
+
+.back-btn{
+position:fixed;
+
+top:25px;
+right:25px;
+
+padding:12px 26px;
+
+background:linear-gradient(135deg,#ff6b8a,#ff4d73);
+
+color:white;
+
+border:none;
+
+border-radius:30px;
+
+font-size:16px;
+
+cursor:pointer;
+
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+
+z-index:2000;
+
+transition:0.25s;
+}
+
+.back-btn:hover{
+transform:scale(1.1);
+background:#ff3d66;
+}   
+    @keyframes fall{
+
+0%{
+transform:translateY(0)
+}
+
+100%{
+transform:translateY(110vh)
+}
+
+}
+#love-scene{
+
+position:fixed;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:radial-gradient(circle,#000,#020024);
+
+display:none;
+
+justify-content:center;
+align-items:center;
+
+flex-direction:column;
+
+overflow:hidden;
+
+z-index:9999;
+
+}
+
+.love-text{
+
+color:white;
+
+font-size:60px;
+
+font-weight:bold;
+
+text-shadow:0 0 20px pink;
+
+animation:glow 2s infinite alternate;
+
+}
+
+@keyframes glow{
+
+from{transform:scale(1)}
+to{transform:scale(1.2)}
+
+}
+body{
+margin:0;
+font-family:"Segoe UI",sans-serif;
+background:linear-gradient(135deg,#ffd1dc,#ffc0cb);
+text-align:center;
+}
+
+/* tiêu đề */
+
+.title{
+margin-top:40px;
+font-size:55px;
+color:white;
+text-shadow:0 0 20px pink;
+}
+
+/* grid */
+
+.container{
+width:1000px;
+margin:auto;
+margin-top:60px;
+
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+gap:25px;
+}
+
+/* card */
+
+.card{
+background:white;
+padding:10px;
+border-radius:15px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+cursor:pointer;
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+.card img{
+width:100%;
+height:250px;
+
+object-fit:cover;
+
+border-radius:10px;
+}
+
+/* popup */
+
+.popup{
+position:fixed;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.6);
+
+display:none;
+
+justify-content:center;
+align-items:center;
+}
+
+/* popup layout */
+
+.popup-content{
+background:white;
+padding:30px;
+border-radius:20px;
+
+display:flex;
+gap:40px;
+
+max-width:900px;
+}
+
+/* ảnh lớn */
+
+.popup-left{
+width:45%;
+}
+
+.popup-left img{
+width:100%;
+border-radius:12px;
+}
+
+/* chữ */
+
+.popup-right{
+width:55%;
+position:relative;
+
+display:flex;
+flex-direction:column;
+}
+
+.popup-right p{
+font-size:18px;
+line-height:1.7;
+margin-bottom:80px;
+}
+
+/* extra ảnh */
+
+.extra-container{
+position:absolute;
+bottom:20px;
+right:10px;
+
+width:200px;
+height:140px;
+}
+
+.extra-img{
+
+width:110px;
+height:110px;
+
+object-fit:cover;
+
+position:absolute;
+
+border-radius:10px;
+
+box-shadow:0 10px 20px rgba(0,0,0,0.3);
+
+background:white;
+padding:5px;
+
+}
+
+/* xếp chéo */
+
+#extra1{
+top:0;
+right:0;
+transform:rotate(6deg);
+}
+
+#extra2{
+top:40px;
+right:40px;
+transform:rotate(-8deg);
+}
+
+/* nút */
+
+.close-btn{
+margin-top:10px;
+
+padding:10px 20px;
+
+border:none;
+
+background:#ff6b8a;
+
+color:white;
+
+border-radius:20px;
+
+cursor:pointer;
+
+align-self:flex-start;
+}
+
+/* thư */
+
+.letter-section{
+margin:80px 0;
+}
+
+.letter-btn{
+background:#ff6b8a;
+color:white;
+border:none;
+padding:15px 35px;
+font-size:18px;
+border-radius:30px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.letter-btn:hover{
+transform:scale(1.1);
+background:#ff4d73;
+}
+
+.letter-popup{
+position:fixed;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.6);
+
+display:none;
+
+justify-content:center;
+align-items:center;
+}
+
+.letter-content{
+
+background:#fffaf0;
+
+padding:50px;
+
+border-radius:10px;
+
+width:650px;
+
+max-height:80vh;
+
+overflow:auto;
+
+line-height:1.8;
+
+font-size:18px;
+
+text-align:left;
+
+position:relative;
+
+display:flex;
+flex-direction:column;
+
+/* texture giấy */
+
+background-image:
+linear-gradient(#fffaf0,#fff5e6),
+repeating-linear-gradient(
+0deg,
+rgba(0,0,0,0.03) 0px,
+rgba(0,0,0,0.03) 1px,
+transparent 1px,
+transparent 28px
+);
+
+/* viền vintage */
+
+border:8px solid #e8d5b7;
+
+box-shadow:
+0 15px 40px rgba(0,0,0,0.3),
+inset 0 0 20px rgba(0,0,0,0.1);
+
+animation:openLetter 0.7s ease;
+
+}
+
+/* popup chào */
+
+.welcome{
+position:fixed;
+top:0;
+left:0;
+transition:all 0.4s ease;
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.6);
+
+display:flex;
+
+justify-content:center;
+align-items:center;
+
+z-index:999;
+}
+
+.welcome-box{
+background:white;
+padding:40px;
+border-radius:20px;
+text-align:center;
+width:400px;
+}
+.start-btn{
+
+margin-top:20px;
+
+padding:12px 32px;
+
+font-size:18px;
+
+border:none;
+
+border-radius:30px;
+
+background:linear-gradient(135deg,#ff8fb1,#ff4d73);
+
+color:white;
+
+cursor:pointer;
+
+transition:all 0.3s ease;
+
+box-shadow:0 8px 18px rgba(0,0,0,0.2);
+
+}
+
+/* hover */
+
+.start-btn:hover{
+
+transform:translateY(-3px) scale(1.05);
+
+box-shadow:0 12px 25px rgba(0,0,0,0.25);
+
+}
+
+/* click */
+
+.start-btn:active{
+
+transform:scale(0.95);
+
+}
+/* animation popup */
+
+.popup-content{
+transform:scale(0.7);
+opacity:0;
+transition:all 0.35s ease;
+}
+
+.popup.show .popup-content{
+transform:scale(1);
+opacity:1;
+}
+/* trái tim bay */
+
+.heart{
+position:fixed;
+
+bottom:-20px;
+
+color:#ff4d73;
+
+font-size:20px;
+
+animation:floatHeart 6s linear infinite;
+
+opacity:0.7;
+}
+
+@keyframes floatHeart{
+
+0%{
+transform:translateY(0) scale(1);
+opacity:0.7;
+}
+
+100%{
+transform:translateY(-110vh) scale(1.5);
+opacity:0;
+}
+
+}
+
+.card{
+opacity:0;
+transform:translateY(40px);
+transition:all 0.6s ease;
+}
+
+.card.show{
+opacity:1;
+transform:translateY(0);
+}
+.letter-content{
+background:white;
+padding:40px;
+border-radius:20px;
+width:600px;
+max-height:80vh;
+overflow:auto;
+text-align:left;
+line-height:1.7;
+font-size:18px;
+
+display:flex;
+flex-direction:column;
+}
+@keyframes openLetter{
+
+0%{
+transform:scaleY(0.1) rotateX(90deg);
+opacity:0;
+}
+
+60%{
+transform:scaleY(1.05);
+}
+
+100%{
+transform:scaleY(1);
+opacity:1;
+}
+
+}
+.letter-content:before,
+.letter-content:after{
+
+content:"";
+
+position:absolute;
+
+width:40px;
+height:40px;
+
+border:3px solid #e8d5b7;
+
+}
+
+.letter-content:before{
+top:-10px;
+left:-10px;
+border-right:none;
+border-bottom:none;
+}
+
+.letter-content:after{
+bottom:-10px;
+right:-10px;
+border-left:none;
+border-top:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- popup chào -->
+
+<div class="welcome" id="welcome">
+
+<div class="welcome-box">
+
+<h2>Cùng xem lại một ít kỷ niệm của tụi mình nhe 🌷🌷🌷</h2>
+
+<button class="start-btn" onclick="closeWelcome()">
+Bắt đầu ✨
+</button>
+
+</div>
+
+</div>
+
+<h1 class="title">💗 1 year anniversary 💗</h1>
+
+<div class="container">
+
+<div class="card"
+data-text="Cái này là lần đầu tụi mình gặp nhau nè. Hôm đó ngồi đợi em bé ở quán mà siu hồi hộp lun. Thật sự lúc đó nghĩ mãi hong biết nên bắt chuyện như nào hay nên nói gì để thật tự nhiên mà em bé hong thấy khó chịu. Và dù rằng đáng lẽ tâm trạng lúc đó đã rất tệ, vừa làm xong mụt bài thi siu khó mà còn chả làm tốt nữa, đáng lẽ phải buồn lắm cơ, vậy mà chỉ vừa bước ra khỏi phòng thi thoi thì suy nghĩ duy nhất còn lại trong đầu anh là muốn đến quán thật nhanh để đợi gặp em thui. Và thế là tụi mình đã có một buổi tối thật tuyệt, đi dạo cùng nhau thật lâu nè. Vẫn nhớ lúc hai đứa nắm tay xong đi vòng quanh cây cột đấy cơ, chả hiểu sao tuy nhìn có vẻ vô tri nhưng mà lại thành một kỷ niệm siu tuyệt vời đối với anh luôn. Thế nhưng mà vẫn có đôi chút trục trặc nhỉ, thật sự lúc để quên túi quà của em ở quán anh cảm thấy siêu có lỗi với em luôn, nhưng mà may là khi quay lại quán vẫn tìm được nhỉ. Quán còn có vài con mèo nữa, nhưng tụi mình ngồi mãi từ chiều đến tận tối mà tụi nó vẫn nằm ngủ mãi một chỗ nhỉ, lười ghê. Dù sao thì hôm đó cũm là một ngày rất tuyệt vời, và điều tuyệt nhất đó chính là em dó, cám ơn em bé vì buổi hẹn đầu tiên siêu tuyệt vời nhé 💖"
+data-img1="extra1.png"
+data-img2="extra2.jpg">
+<img src="photo1.jpg">
+</div>
+
+<div class="card"
+data-text="Này là lần thứ 2 mình gặp nhau nhỉ, cũm là lần đầu tiên anh tự mình chạy xa đến thế lun. Cũm nhờ có thế mà anh có thể đến và đón em đi nè.9 Thế là theo chỉ dẫn của em, tụi minh đã đến được công viên bờ sông Sài Gòn, tìm được một chỗ ngồi thật tuyệt nè, hai đứa đã cùng ngồi nặn đất nặn hết buổi chiều hôm đấy, thật sự là em bé rất khéo tay luôn ó, mấy con anh nặn ra trông cứ hài hài thế nào thôi. Hơi tiếc là hong thể nặn được hình em bé hoàn chỉnh nhỉ, về đến nhà thì mí con đó lại vỡ tan tành hết, thật sự siu tiếc luôn. Anh vẫn mong là tụi mình sẽ có một buổi claydate khác nữa nè, lúc đó tui sẽ hoàn thành hết mấy con đấy lun. Sau khi chơi đã rùi thì tụi mình lại đi dạo công viên nhỉ. Trớ trêu thay là đêm đó mưa tầm tã luôn, hai đứa phải trú tạm trong hội chợ một khoảng thời gian thật dài. Tuy nhiên thì nhờ có như thế mà anh mới có thể được nắm tay em thật lâu nè, và còn được trò chuyện tâm sự cùng em đến tận tối khuya, thật sự chẳng muốn về chút nào hết nhỉ, cứ muốn được ngồi đấy cùng em mãi thôi, đến tận khi về nhà rùi anh vẫn mong được tiếp tục cùng em trò chuyện thêm nhiều nữa, được ngồi cùng em thêm nhiều chút nữa. Cám ơn em bé vì một ngày siêu tuyệt vời nữa nhé 💖"
+data-img1="extra4.jpg"
+data-img2="extra3.jpg">
+<img src="photo2.jpg">
+</div>
+
+<div class="card" 
+data-text="Sau hai lần gặp nhau kia thì tụi mình đã tìm được một điểm đến mới nhỉ. Chính là Jellykiss, thía là đây trở thành lần đầu tiên anh được nằm cạnh em, được ôm nè, và thơm em nữa, dù là vô cùng ngại nhưng vẫn thích lắm lun ạ. Hình như kể từ hôm đóa, tụi mình đã đến đây rất rất nhiều lần luôn thì phải, đúm là mỗi lần vào lại chỉ muốn được nằm mãi bên cạnh em thui. Tụi mình cũm đã làm rất nhiều việc khác ở đay nè. Đúng rồi, còn có một hôm hai đứa ngồi deeptalk cùng nhau nhỉ, mụt buổi trò chuyện thật dài nè, anh được lắng nghe và được chia sẽ cùng em bé thật nhiều điều luôn ó. Phải nói là siêu thích ngắm những lúc em bé kể chuyện hay đưa ra các câu trả lời nè, nhìu câu trong đấy cũng rất là khó nhỉ. Và dù cho câu trả lời của em bé là gì, thì anh vân luôn thấy đó là một ý tưởng, một cách nghĩ thật sự rất tuyệt vời ạ, cũm nhờ đó mà anh có thể biết được rằng anh đã được gặp một người yêu siêu tuyệt vời luôn ạ. Sau đó thì tụi mình đã tìm được một quán jelly kiss khác ở rất gần chỗ của em nè, phòng ở đay caoo hơn, và còn có cả một tầng ở trên có view cửa số nữa, tiếc là tụi mình chưa đặt thử phòng trên đấy bao giờ nhỉ. Thía là đay lại trở thành mụt điểm đến vô cùng tuyệt vời nè. Hong biết trong tương lai liệu tụi mình có đến đó lần nào nữa hong ta💖"
+data-img1="extra.jpg">
+<img src="photo3.jpg">
+</div>
+
+<div class="card" data-text="Hôm này hình như là tụi mình cũng đã đi jellykiss từ trước đó nhỉ, sau đó tụi mình đã ghé sang một quán bánh trông thật đẹp nè. Đúm là em bé đã tiềm được một tiệm bánh rất xịn đó, bánh ăn cũng rất ngon nữa ạ. Hôm đấy anh cứ mong em bé sẽ ăn nhiều lên chút cơ, anh hong muốn người yêu phải lo anh hét tiền hay gì đâu, vì chỉ cần nhìn em bé ăn thật ngon thì chính anh cũng cảm thấy rất hạnh phúc đó. Hình như là hôm đấy trời cũng mưa nhỉ, được trú mưa cùng người yêu ở một tiệm bánh, nghe vừa xa hoa lại có chút lãng mạn nhỉ. thế là anh đã chụp được vài tấm ảnh của em nè, cả tấm hình này nữa, tấm nào cũng dễ thương hết trơn á. Hong phải tranh cãi gì nữa, người yêu anh chính là người xinh đẹp nhất trên đời này luôn">
+<img src="photo4.jpg">
+</div>
+
+<div class="card" data-text="Lúc này hình như là tụi mình đang đi dạo cùng nhau nhỉ, còn ăn kem cá cùng nhau nữa nè. Kiểu chụp này hình như là trước đó anh có coi thấy người ta chụp giống thế up lên tiktok xong cũm có hứng chụp theo nè, xui cái là anh hong giỏi vẽ, nên đành phải dùng kí tự từ bàn phím để vẽ vào hoi, hì hì, thứ lỗi cho anh người yêu vụng về này nhé. Phải rùi, lúc đó còn mún rủ em bé làm cái penguin hug cơ nhìn cute lắm ạ, nhưng mà lại ngại quá nên chưa dám rủ em bé làm ạ. Giờ mới nhớ là lâu rùi tụi mình chưa đi dạo giống thế nhỉ. Mong là tụi mình sẽ có một cơ hội để thử lại những điều đã làm cùng nhau vào một lúc nào đó nhỉ ">
+<img src="photo5.jpg">
+</div>
+
+<div class="card" data-text="Hình này là đi chụp photobooth cùng nhau nè, thật ra trước hôm đó anh cứ hồi hộp mãi hoi. Em bé có từng bảo với anh là em bé sợ ống kính nên rất ngại chụp hình nhỉ. Thật ra, anh cũm rất ngại chụp hình á, vừa sợ hong ăn ảnh nè, vừa hong biết phải tạo dáng, biểu cảm như thế nào cơ, đến tận bây giờ thì mấy lúc chụp hình anh vẫn chẳng biết phải làm biểu cảm hay phải có nét mặt như nào cho thật hợp lý nữa. Dù sợ là thế, nhưng anh vẫn mong có thể ghi lại được thật nhiều kỉ niệm của hai đứa ạ. Và tất nhiên là để một lúc nào đó, khi em bé cô đơn, khi em bé chỉ có một mình mà anh chưa thể chạy đến ngay bên em bé được, em bé có thể nhớ rằng thật ra anh vẫn sẽ luôn bên cạnh em mà thui. Và thế là sau cùng, tuy nhìn anh thật ngáo ngơ nhưng tụi mình đã có được một tấm ảnh hết sức đáng yêu cùng nhau nè. Em bé trông xinh lắm ó, đáng yêu trong mọi khung hình luôn. anh còn muốn chụp nhiều nhiều nữa ạ, để có thể lưu lại được thật nhiều kỉ niệm của tụi mình chứ. ">
+<img src="photo6.jpg">
+</div>
+
+<div class="card" data-text="Tụi mình cũng đã cùng nhau rước về một em hamster siêu dễ thương nè. Đây là lần đầu tiên tụi mình nuôi pet cùng nhau nhỉ, và cùng là chú chuột hamster đầu tiên mà anh nuôi luôn. Thật sự là lúc đó phân vân, thắc mắc rùi lo lắng đủ điều hết trơn luôn ha. Vừa hong biết chăm thế nào cho thật tốt nè, vừa hong biết phải làm sao cho bé quen môi trường mới, cho em hamster thoải mái và có thể sống thật lâu nè, vì tuổi thọ của hamser thường rất ngắn mà. Tuy chỉ nuôi được một thời gian ngắn thui nhưng đây vẫn là một kỉ niệm siêu tuyệt đẹp đối với anh luôn đó. Anh mong rằng một lúc nào đó trong tương lai tụi mình sẽ có thể cùng nhau nuôi một em pet thật đáng yêu và thật dài lâu nhé. ">
+<img src="photo7.png">
+</div>
+
+<div class="card"
+data-text="Tụi mình còn đi cafe mèo cùng nhau nữa nè. Thật ra là anh đã đến quán từ lúc trước òi, đợt đấy cái phòng bên tay phải còn mở cơ ạ, rộng lém lun, xong òi mí con mèo cũm quấn người nựa, vẫn nhớ bị con mèo trụi lông leo lên đầu, kéo mãi mới chịu xún. với cả cũm có nhìu bộ trò chơi nựa. Hong biết có phải do tụi mình đi vào lúc gần tối hay hong mà tụi mèo trông có vẻ lười biếng nhỉ. Chỉ được đúng mụt con mèo trông giao diện hơi báo và hung hăng lại chơi, nhưng mò hung dữ quớ i. Mong là một hôm nào đó tụi mình sẽ có thể đi một quán cafe khác cũm thật nhiều mèo nhỉ, hoặc cũm có thể là chó hay cả mí con pet khác nữa, để có thể chơi cùng nhau và tạo thêm thật nhiều kỉ niệm đẹp nữa nhé 💖"
+data-img1="extra5.png">
+<img src="photo8.png">
+</div>
+
+<div class="card"
+data-text="Tụi mình còn đón giáng sinh cùng nhau nữa nhỉ. Cả hai đứa đã lên kế hoạch đi ún chocobomb nè, thế nhưng mà sau cùng lại chẳng thể tìm được quán nào cả, chỗ thì hơm tìm được đường vào, chỗ thì đã đóng cửa mất rùi, tiếc ghê nhỉ. Thế là tụi mình đã lượn đến tía tô artbook, chỗ mà hai đứa từng bảo sẽ đi thử. Lần đầu tiên anh được đi workshop cùng em bé nè, còn được làm vòng tay cho em bé nữa chớ, yêu quá chời lun. Tuy chờ đồ uống với cọng dây cước ra hơi lâu, nhưng trong khoảng thời gian đó tụi mình đã chơi đủ trò cùng nhau nè, làm mấy cây kem thật cute, ăn mụt ít bánh vặt nhỉ. Việc làm vòng cũm rất vui luôn he, chắc điểm trừ duy nhất là đồ ún của quán hơi nhạt mà hoi. Dù sao thì đây vẫn là một kỉ niệm tuyệt vời với anh ạ. Mong rằng tụi mình sẽ còn cùng nhau đón thêm nhiều mùa giáng sinh nữa nhé💖"
+data-img1="extra7.png"
+data-img2="extra6.png">
+<img src="photo9.png">
+</div>
+
+</div>
+
+<!-- popup ảnh -->
+
+<div class="popup" id="popup">
+
+<div class="popup-content">
+
+<div class="popup-left">
+<img id="popup-img">
+</div>
+
+<div class="popup-right">
+
+<p id="popup-text"></p>
+
+<div class="extra-container">
+
+<img id="extra1" class="extra-img">
+<img id="extra2" class="extra-img">
+
+</div>
+
+<button class="close-btn" onclick="closePopup()">Đóng</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- nút mở thư -->
+
+<div class="letter-section">
+<button class="letter-btn" onclick="openLetter()">💌 Mở Thư</button>
+</div>
+
+<!-- popup thư -->
+
+<div class="letter-popup" id="letterPopup">
+
+<div class="letter-content">
+
+<h2>Gửi em ❤️</h2>
+
+<p>
+Và không chỉ những nơi đấy, bọn mình đã cùng nhau đi đến rất nhiều nơi. Và dù là bất cứ nơi nào mà ta từng đi qua đều trờ thành một kỉ niệm siêu đẹp đối với anh. Từng có cả khoảng thời gian tụi mình chẳng thể gặp nhau suốt mùa hè, cảm giác lúc đấy nhớ em đến kinh khủng, chỉ mong đến phút giây được gặp lại em, muốn được chạy vèo đến ôm em một cái ngay tức thì. Tụi mình cũng đã cùng nhau trải qua nhiều điều, rất nhiềm niềm vui, nhưng cũng xen lẫn những lần giận dỗi, nhưng lúc anh chưa thật sự có thể nuông chiều theo đúng ý em, những lúc hai đứa trở nên nóng giận, cả những lần tụi mình gần như đã chia tay nhau. Nhưng dù thế nào đi nữa, anh vẫn luôn muốn ở bên cạnh em, anh sẽ trở nên tốt hơn, trở thành một người yêu thật tốt mà em bé có thể dựa vào. Anh mong rằng có thể cùng em bước thêm tiếp một chặng đường thật dài về sau, có thể cùng em tạo nên thêm nhiều kỉ niệm đáng nhớ, có thể cùng em làm thêm nhiều điều mới. Và sau tất cả, anh chỉ muốn nói rằng anh thật sự yêu em rất nhiều 💗💗💗
+<br><br>
+Ps: trong trang vẫn còn một và easter egg nho nhỏ đó, người yêu hãy thử click vào tiêu đề vài cái nhé, click từ từ thoi ạ
+</p>
+
+<button class="close-letter-btn" onclick="closeLetter()">
+Đóng ✉️
+</button>
+
+</div>
+
+</div>
+
+<!-- nhạc -->
+
+<audio id="bg-music" autoplay loop>
+<source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+/* popup chào */
+
+function closeWelcome(){
+document.getElementById("welcome").style.display="none"
+}
+
+/* nhạc */
+
+document.addEventListener("click",function(){
+let music=document.getElementById("bg-music")
+music.play()
+},{once:true})
+
+/* popup ảnh */
+
+const popup=document.getElementById("popup")
+const popupImg=document.getElementById("popup-img")
+const popupText=document.getElementById("popup-text")
+
+const extra1=document.getElementById("extra1")
+const extra2=document.getElementById("extra2")
+
+document.querySelectorAll(".card").forEach(card=>{
+
+card.onclick=()=>{
+
+popup.style.display="flex"
+
+setTimeout(()=>{
+popup.classList.add("show")
+},10)
+
+popupImg.src=card.querySelector("img").src
+
+popupText.innerText=card.dataset.text
+
+if(card.dataset.img1){
+extra1.src=card.dataset.img1
+extra1.style.display="block"
+}else{
+extra1.style.display="none"
+}
+
+if(card.dataset.img2){
+extra2.src=card.dataset.img2
+extra2.style.display="block"
+}else{
+extra2.style.display="none"
+}
+
+}
+
+})
+
+function closePopup(){
+
+popup.classList.remove("show")
+
+setTimeout(()=>{
+popup.style.display="none"
+},300)
+
+}
+
+/* thư */
+
+function openLetter(){
+document.getElementById("letterPopup").style.display="flex"
+}
+
+function closeLetter(){
+document.getElementById("letterPopup").style.display="none"
+}
+/* tạo trái tim */
+
+function createHeart(){
+
+const heart=document.createElement("div")
+
+heart.classList.add("heart")
+
+heart.innerHTML="❤️"
+
+heart.style.left=Math.random()*100+"vw"
+
+heart.style.fontSize=(15+Math.random()*20)+"px"
+
+document.body.appendChild(heart)
+
+setTimeout(()=>{
+heart.remove()
+},6000)
+
+}
+
+setInterval(createHeart,800)
+/* scroll animation */
+
+const observer=new IntersectionObserver(entries=>{
+
+entries.forEach(entry=>{
+
+if(entry.isIntersecting){
+entry.target.classList.add("show")
+}
+
+})
+
+})
+
+document.querySelectorAll(".card").forEach(card=>{
+observer.observe(card)
+})
+/* easter egg */
+
+let clickCount=0
+
+document.querySelector(".title").addEventListener("click",()=>{
+
+clickCount++
+
+if(clickCount===5){
+
+alert("💖 Bí mật nè: Anh yêu em nhiều lắm 💖")
+
+clickCount=0
+
+}
+
+})
+function closeWelcome(){
+
+const welcome=document.getElementById("welcome")
+
+welcome.style.opacity="0"
+welcome.style.transform="scale(0.9)"
+
+setTimeout(()=>{
+welcome.style.display="none"
+},400)
+
+}
+function closeLetter(){
+
+const letter=document.querySelector(".letter-content")
+
+letter.style.transform="scaleY(0.1)"
+letter.style.opacity="0"
+
+setTimeout(()=>{
+document.getElementById("letterPopup").style.display="none"
+letter.style.transform=""
+letter.style.opacity=""
+},400)
+
+}
+function createStars(){
+
+for(let i=0;i<60;i++){
+
+let star=document.createElement("div")
+
+star.innerHTML="⭐"
+
+star.style.position="absolute"
+star.style.left=Math.random()*100+"%"
+star.style.top=Math.random()*100+"%"
+
+star.style.fontSize="15px"
+
+document.getElementById("love-scene").appendChild(star)
+
+}
+
+}
+function heartRain(){
+
+setInterval(()=>{
+
+let heart=document.createElement("div")
+
+heart.innerHTML="❤️"
+
+heart.style.position="absolute"
+
+heart.style.left=Math.random()*100+"%"
+
+heart.style.top="-20px"
+
+heart.style.fontSize="20px"
+
+heart.style.animation="fall 4s linear"
+
+document.getElementById("love-scene").appendChild(heart)
+
+setTimeout(()=>heart.remove(),4000)
+
+},300)
+
+}
+let secretClick = 0
+
+document.querySelector(".title").onclick = () => {
+
+secretClick++
+
+if(secretClick == 7){
+
+let scene=document.getElementById("love-scene")
+
+scene.style.display="flex"
+
+createStars()
+
+heartRain()
+
+}
+
+}
+function createBackButton(){
+
+const btn=document.createElement("button")
+
+btn.innerText="⬅ Quay lại kỷ niệm"
+
+btn.className="back-btn"
+
+btn.onclick=()=>{
+location.reload()
+}
+
+document.body.appendChild(btn)
+
+}
+function createBackButton(){
+
+const btn=document.createElement("button")
+
+btn.innerText="⬅ Quay lại kỷ niệm"
+
+btn.className="back-btn"
+
+btn.onclick=()=>{
+location.reload()
+}
+
+document.body.appendChild(btn)
+
+}
+</script>
+<div id="love-scene">
+
+<div class="love-text">
+Anh yêu em ❤️
+</div>
+
+</div>
+</body>
+</html>
