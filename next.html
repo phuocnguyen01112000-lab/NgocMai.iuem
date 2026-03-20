@@ -5,6 +5,74 @@
 <title>Foru</title>
 
 <style>
+    .secret-letter{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.85);
+
+display:none;
+justify-content:center;
+align-items:center;
+z-index:10001;
+}
+
+.secret-content{
+background:white;
+padding:40px;
+border-radius:20px;
+width:420px;
+text-align:center;
+
+animation:zoomIn 0.4s ease;
+box-shadow:0 0 30px rgba(255,105,180,0.4);
+}
+
+@keyframes zoomIn{
+from{
+transform:scale(0.7);
+opacity:0;
+}
+to{
+transform:scale(1);
+opacity:1;
+}
+}
+    .secret-notice{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.85);
+color:white;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+z-index:10000;
+
+font-size:24px;
+text-align:center;
+
+animation:fadeIn 0.5s;
+cursor:pointer;
+}
+
+.notice-box{
+background:rgba(255,255,255,0.1);
+padding:40px;
+border-radius:20px;
+backdrop-filter:blur(10px);
+}
+
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
     /* nút quay lại sau easter egg */
 
 .back-btn{
@@ -535,7 +603,23 @@ border-top:none;
 </head>
 
 <body>
+<div id="secretLetter" class="secret-letter">
+  <div class="secret-content">
+    <h2>💖💖💖</h2>
+    <p>
+      Chúc mừng em bé đã mở ra được bí mật cúi cùng nè, hihi. Đây chính là easter egg cuối cùng của web đóa. Đầu tiên là anh chỉ muốn chúc em bé yêu của anh luôn luôn xinh đẹp nè, và luôn thật hạnh phúc ạ. Dạo gần đây em bé đã rất cực khổ với những cơn đau bụng kéo dàii nè. Anh mong rằng em bé của anh sẽ mau chóng khỏe lại, và có thật nhìu sức khỏe ạ. Anh muốn nói là anh yêu em lắm đó. Mau khỏi bệnh nhé, love youuuu💗💗💗
+    </p>
 
+    <button onclick="closeSecretLetter()">Đóng</button>
+  </div>
+</div>
+<div id="secretNotice" class="secret-notice">
+  <div class="notice-box">
+    💌 Có một bức thư bí mật trong trang này...
+    <br><br>
+    (chạm vào bất kỳ đâu để tiếp tục)
+  </div>
+</div>
 <!-- popup chào -->
 
 <div class="welcome" id="welcome">
@@ -920,6 +1004,67 @@ location.reload()
 
 document.body.appendChild(btn)
 
+}
+document.getElementById("secretNotice").onclick = function(){
+  this.style.opacity = "0"
+  setTimeout(()=>{
+    this.style.display = "none"
+  },400)
+}
+const SECRET_CODE = "1604"
+let currentInput = ""
+
+document.addEventListener("keydown", (e) => {
+
+  // bỏ qua phím đặc biệt
+  if(e.key.length > 1) return
+
+  currentInput += e.key.toLowerCase()
+
+  // giữ độ dài tối đa
+  if(currentInput.length > SECRET_CODE.length){
+    currentInput = currentInput.slice(-SECRET_CODE.length)
+  }
+
+  // check đúng code
+  if(currentInput === SECRET_CODE){
+
+    triggerSecretEffect()
+    openSecretLetter()
+
+    currentInput = ""
+  }
+
+})
+function triggerSecretEffect(){
+
+  // flash sáng nhẹ
+  document.body.style.transition = "0.3s"
+  document.body.style.filter = "brightness(1.3)"
+
+  setTimeout(()=>{
+    document.body.style.filter = ""
+  },300)
+
+  // rung nhẹ
+  document.body.style.transform = "scale(1.02)"
+
+  setTimeout(()=>{
+    document.body.style.transform = ""
+  },200)
+
+}
+function openSecretLetter(){
+  document.getElementById("secretLetter").style.display="flex"
+
+  // đổi nhạc (optional)
+  let music = document.getElementById("bg-music")
+  music.src = "secret.mp3"
+  music.play()
+}
+
+function closeSecretLetter(){
+  document.getElementById("secretLetter").style.display="none"
 }
 </script>
 <div id="love-scene">
